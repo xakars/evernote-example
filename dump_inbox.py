@@ -1,13 +1,13 @@
 #!/usr/bin/env python 
 import argparse
+import os
 
 from evernote.api.client import EvernoteClient
 from evernote.api.client import NoteStore
 from bs4 import BeautifulSoup
+from dotenv import load_dotenv
 
-from config import Settings
 
-    
 def get_notebook_list(note_store, notebook_guid, number=10, offset=0):
     _filter = NoteStore.NoteFilter(notebookGuid=notebook_guid)
     resultSpec = NoteStore.NotesMetadataResultSpec(
@@ -29,6 +29,7 @@ def get_notebook_list(note_store, notebook_guid, number=10, offset=0):
 
 
 if __name__ == '__main__':
+    load_dotenv()
     parser = argparse.ArgumentParser(description=u'Dumps notes from Evernote inbox to console')
     parser.add_argument('number',
                         nargs='?',
@@ -37,15 +38,14 @@ if __name__ == '__main__':
                         help='number of records to dump')
     args = parser.parse_args()
 
-    config = Settings()
 
     client = EvernoteClient(
-        token=config.EVERNOTE_PERSONAL_TOKEN,
-        sandbox=False
+        token=os.environ["EVERNOTE_PERSONAL_TOKEN"],
+        sandbox=True
     )
     note_store = client.get_note_store()
 
-    notes = get_notebook_list(note_store, config.INBOX_NOTEBOOK_GUID, args.number).notes
+    notes = get_notebook_list(note_store, os.environ["INBOX_NOTEBOOK_GUID"], args.number).notes
 
     # print('Notes', notes)
     
